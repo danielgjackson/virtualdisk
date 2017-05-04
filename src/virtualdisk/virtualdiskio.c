@@ -17,8 +17,7 @@ void VirtualDiskIOSet(unsigned char drive, virtualdisk_t *vd)
 
 DSTATUS disk_initialize(BYTE drive)
 {
-	virtualdisk_t *state = virtualdisk[drive];
-	state = &virtualdisk;
+	//virtualdisk_t *state = virtualdisk[drive];
     return disk_status(drive);
 }
 

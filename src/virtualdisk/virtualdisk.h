@@ -38,7 +38,7 @@ struct virtualdisk_partition_struct_t;
 #define VIRTUALDISK_ATTRIB_ARCHIVE      0x20
 
 // (Public) sector generator function
-typedef unsigned short (*virtualdisk_generator_t)(void *reference, unsigned long sector, unsigned short count, void *buffer);
+typedef unsigned short (*virtualdisk_generator_t)(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer);
 
 // (Public) File information structure
 typedef struct virtualdisk_fileinfo_t_struct

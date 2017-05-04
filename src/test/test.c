@@ -11,7 +11,7 @@
 #include <time.h>
 
 #include "../virtualdisk/virtualdisk.h"
-#include "../virtualdisk/virtualdisk.h"
+#include "../virtualdisk/virtualdiskio.h"
 #include "../fatfs/ff.h"
 
 // File-system state
@@ -117,7 +117,6 @@ void WriteLocalFileFromFile(const char *destFilename, const char *sourceFilename
 
 void PrintFile(const char *filename)
 {
-    static char buffer[256];
     FIL fp;
     FRESULT res;
     res = f_open(&fp, filename, FA_OPEN_EXISTING | FA_READ);
@@ -143,7 +142,7 @@ buffer[72] = '>'; buffer[73] = '>'; buffer[74] = '>'; buffer[75] = '\0';
 
 
 
-void main(void)
+int main(void)
 {
     FRESULT res;
 
@@ -251,5 +250,5 @@ VirtualDiskAddPartition(&virtualdisk, &partition, VirtualDiskFileInfo, 1, 30, 16
     getchar();
 #endif
 
-    return;
+    return 0;
 }

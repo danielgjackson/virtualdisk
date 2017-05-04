@@ -24,7 +24,7 @@
 
 
 // (Private) Seek a file enumerator to the specified id
-char VirtualDiskFileEnumeratorSeekId(virtualdisk_file_enumerator_t *fileEnumerator, int id)
+static char VirtualDiskFileEnumeratorSeekId(virtualdisk_file_enumerator_t *fileEnumerator, int id)
 {
     // If need to reset...
     if (id < 0 || id < fileEnumerator->fileInfo.id)
@@ -64,14 +64,14 @@ char VirtualDiskFileEnumeratorSeekId(virtualdisk_file_enumerator_t *fileEnumerat
 
 
 // (Private) Seek a file enumerator to the next file
-char VirtualDiskFileEnumeratorNext(virtualdisk_file_enumerator_t *fileEnumerator)
+static char VirtualDiskFileEnumeratorNext(virtualdisk_file_enumerator_t *fileEnumerator)
 {
     return VirtualDiskFileEnumeratorSeekId(fileEnumerator, fileEnumerator->fileInfo.id + 1);
 }
 
 
 // (Private) Seek a file enumerator to the one covering the specified cluster
-char VirtualDiskFileEnumeratorSeekCluster(virtualdisk_file_enumerator_t *fileEnumerator, unsigned long cluster)
+static char VirtualDiskFileEnumeratorSeekCluster(virtualdisk_file_enumerator_t *fileEnumerator, unsigned long cluster)
 {
     // If we're looking for a cluster before the current one, reset
     if (cluster < fileEnumerator->firstCluster)
@@ -98,7 +98,7 @@ char VirtualDiskFileEnumeratorSeekCluster(virtualdisk_file_enumerator_t *fileEnu
 
 
 // (Private) Initialize a file enumerator
-char VirtualDiskFileEnumeratorInit(virtualdisk_file_enumerator_t *fileEnumerator, virtualdisk_partition_t *partition, VirtualDiskFileInfoCallback fileInfoCallback)
+static char VirtualDiskFileEnumeratorInit(virtualdisk_file_enumerator_t *fileEnumerator, virtualdisk_partition_t *partition, VirtualDiskFileInfoCallback fileInfoCallback)
 {
     fileEnumerator->partition = partition;
     fileEnumerator->firstCluster = 2;       // First FAT cluster is 2
@@ -118,6 +118,7 @@ char VirtualDiskFileEnumeratorInit(virtualdisk_file_enumerator_t *fileEnumerator
 }
 
 
+// (Public) Initialize a disk structure with the specified sector size (e.g. 512 bytes)
 char VirtualDiskInit(virtualdisk_t *disk, unsigned short sectorSize)
 {
     // Check sector size must be at least 512 bytes and be a power of 2
@@ -139,6 +140,7 @@ char VirtualDiskInit(virtualdisk_t *disk, unsigned short sectorSize)
     return 1;
 }
 
+// (Public) Initialize a partition structure and add it to the specified disk, with the specified callback for file information , sectors-per-cluster, number of data clusters, and maximum root directory entries.
 char VirtualDiskAddPartition(virtualdisk_t *disk, virtualdisk_partition_t *partition, VirtualDiskFileInfoCallback fileInfoCallback, unsigned char sectorsPerCluster, unsigned long countDataClusters, unsigned short rootDirEntries)
 {
     // Check we have space to add the partition
@@ -218,7 +220,7 @@ char VirtualDiskAddPartition(virtualdisk_t *disk, virtualdisk_partition_t *parti
 
 
 // (Private) Generate a MBR for a disk
-unsigned short VirtualDiskGenerateMBR(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
+static unsigned short VirtualDiskGenerateMBR(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
 {
     virtualdisk_t *disk = (virtualdisk_t *)reference;
     int i;
@@ -259,7 +261,7 @@ unsigned short VirtualDiskGenerateMBR(void *reference, unsigned long sector, uns
 
 
 // (Private) Generate a sector in the reserved area (the first of which will be a boot sector)
-unsigned short VirtualDiskPartitionGenerateReserved(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
+static unsigned short VirtualDiskPartitionGenerateReserved(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
 {
     virtualdisk_partition_t *partition = (virtualdisk_partition_t *)reference;
 
@@ -333,7 +335,7 @@ unsigned short VirtualDiskPartitionGenerateReserved(void *reference, unsigned lo
 
 
 // (Private) Generate a sector from the FAT
-unsigned short VirtualDiskPartitionGenerateFAT(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
+static unsigned short VirtualDiskPartitionGenerateFAT(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
 {
     virtualdisk_partition_t *partition = (virtualdisk_partition_t *)reference;
     // Small FAT12 example:
@@ -444,7 +446,7 @@ unsigned short VirtualDiskPartitionGenerateFAT(void *reference, unsigned long se
 
 
 // (Private) Generate a sector of directory entries
-unsigned short VirtualDiskPartitionGenerateDirectory(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
+static unsigned short VirtualDiskPartitionGenerateDirectory(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
 {
     virtualdisk_partition_t *partition = (virtualdisk_partition_t *)reference;
     int entriesPerSector = (partition->disk->sectorSize / 32);
@@ -518,8 +520,8 @@ unsigned short VirtualDiskPartitionGenerateDirectory(void *reference, unsigned l
 }
 
 
-// (Private) Generate a NULL data sector
-unsigned short VirtualDiskGenerateNull(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
+// (Private) Generate a null data sector
+static unsigned short VirtualDiskGenerateNull(void *reference, unsigned long sector, unsigned short count, unsigned char *buffer)
 {
     virtualdisk_t *disk = (virtualdisk_t *)reference;
     memset(buffer, 0x00, count * disk->sectorSize);
@@ -528,7 +530,7 @@ unsigned short VirtualDiskGenerateNull(void *reference, unsigned long sector, un
 
 
 // (Private) Determine which generator function to call for a partition
-char VirtualDiskPartitionGetGenerator(virtualdisk_partition_t *partition, virtualdisk_generator_info_t *generatorInfo, unsigned long sector)
+static char VirtualDiskPartitionGetGenerator(virtualdisk_partition_t *partition, virtualdisk_generator_info_t *generatorInfo, unsigned long sector)
 {
     const unsigned long addressFAT = partition->sectorsReserved;                                        // Start of FAT0
     const unsigned long addressRootDir = (addressFAT + (partition->sectorsFat0 * partition->numFat));   // Root directory
@@ -583,7 +585,7 @@ char VirtualDiskPartitionGetGenerator(virtualdisk_partition_t *partition, virtua
 
 
 // (Private) Determine which generator function to call for a disk
-char VirtualDiskGetGenerator(virtualdisk_t *disk, virtualdisk_generator_info_t *generatorInfo, unsigned long sector)
+static char VirtualDiskGetGenerator(virtualdisk_t *disk, virtualdisk_generator_info_t *generatorInfo, unsigned long sector)
 {
     int i;
 
@@ -624,7 +626,7 @@ char VirtualDiskGetGenerator(virtualdisk_t *disk, virtualdisk_generator_info_t *
     }
 
     // Blank space after partitions
-    generatorInfo->generator = VirtualDiskGenerateNull;
+    generatorInfo->generator = (virtualdisk_generator_t)VirtualDiskGenerateNull;
     generatorInfo->reference = disk;
     generatorInfo->firstSector = sector;                // Could be earlier
     generatorInfo->lastSector = disk->sectorCount - 1;
@@ -635,6 +637,7 @@ char VirtualDiskGetGenerator(virtualdisk_t *disk, virtualdisk_generator_info_t *
 }
 
 
+// (Public) Read the specified number of (contiguous) sectors from the disk to the user-supplied buffer
 unsigned short VirtualDiskReadSectors(virtualdisk_t *disk, unsigned long sector, unsigned short count, void *buffer)
 {
     unsigned short totalSectors = 0;
@@ -700,6 +703,7 @@ unsigned short VirtualDiskReadSectors(virtualdisk_t *disk, unsigned long sector,
 }
 
 
+// (Public) Query the size (bytes) of each sector of the disk
 unsigned short VirtualDiskSectorSize(virtualdisk_t *disk)
 {
     if (!disk->initialized) { return 0; }
@@ -707,8 +711,10 @@ unsigned short VirtualDiskSectorSize(virtualdisk_t *disk)
 }
 
 
+// (Public) Query the number of sectors on the disk
 unsigned long VirtualDiskSectorCount(virtualdisk_t *disk)
 {
     if (!disk->initialized) { return 0; }
     return disk->sectorCount;
 }
+
