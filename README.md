@@ -3,7 +3,7 @@
 
 ## Overview
 
-This virtual disk driver emulates a drive with FAT12/FAT16/FAT32 partitions containing virtual files and file contents. 
+This virtual disk emulates a drive with FAT12/FAT16/FAT32 partitions containing virtual files and file contents. 
 Sectors are produced as needed -- no sectors are stored in memory, and nothing but the essential information is cached (importantly, no "per file" overhead). 
 A "generator" is used to create sectors as they are requested (e.g. FAT table, directory contents, each file's contents). 
 The "generator" is cached, so this performs well for normal, linear reads from the file-system (incrementally moving to the next file is also a constant-time operation). 
