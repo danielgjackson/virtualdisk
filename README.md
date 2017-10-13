@@ -46,8 +46,6 @@ unsigned short VirtualDiskFileContents(void *reference, unsigned long sector, un
 // Call-back function to get information about each file in the root directory
 char VirtualDiskFileInfo(virtualdisk_fileinfo_t *fileInfo)
 {
-    fileInfo->filename = filename;
-    fileInfo->attributes = VIRTUALDISK_ATTRIB_VOLUME;
     fileInfo->created = VIRTUALDISK_DATETIME_MIN;
     fileInfo->modified = VIRTUALDISK_DATETIME_MIN;
     fileInfo->accessed = VIRTUALDISK_DATETIME_MIN;
