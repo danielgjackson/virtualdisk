@@ -1,5 +1,7 @@
 # Virtual Disk
 
+> *Virtual FAT disk drive -- read-only and generated on demand. Tiny memory footprint, suitable for embedded applications.*
+
 
 ## Overview
 
